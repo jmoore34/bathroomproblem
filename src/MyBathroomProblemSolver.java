@@ -14,14 +14,21 @@ public class MyBathroomProblemSolver implements BathroomProblemSolverInterface
 
     public MyBathroomProblemSolver(int n)
 	{
+	    System.out.println("MyBathroomProblemSolver("+n+")");
 		this.numToilets = n;
 		this.switchTheshold = 2*n;
 	}
 
+	public void debug() {
+        System.out.println("turn: " + turn + " waiting[0]: " + waiting[0] + " waiting[1]: " + waiting[1] + " completed: " + completed + " inside: " + inside );
+    }
+
 	// Try to enter the bathroom
 	public void arriveAtTheBathroom(gender type)
 	{
-		mutex.acquireUninterruptibly(); // wait to enter CS
+	    System.out.println("arriveAtTheBathroom("+type.toString()+")");
+	    debug();
+	    mutex.acquireUninterruptibly(); // wait to enter CS
         waiting[type.ordinal()]++; //increment the # of waiters for this gender
 
         // check if can enter the bathroom immediately
@@ -41,11 +48,15 @@ public class MyBathroomProblemSolver implements BathroomProblemSolverInterface
             inside++; //enter bathroom
             mutex.release(); // leave CS
         }
+        System.out.println("END enterTheBathroom"+type+")");
+        debug();
 	}
 
 	// Leave the bathroom
 	public void leaveTheBathroom(gender type) 
 	{
+	    System.out.println("leaveTheBathroom"+type+")");
+	    debug();
 		mutex.acquireUninterruptibly(); //wait to enter CS
 		inside--; // no longer in bathroom
 		completed++; // increment # of people who have completed using the bathroom
@@ -68,6 +79,8 @@ public class MyBathroomProblemSolver implements BathroomProblemSolverInterface
         }
 
 		mutex.release(); // leave CS
+        System.out.println("END leaveTheBathroom"+type+")");
+        debug();
 	}
 
     //Helper functions
@@ -77,6 +90,8 @@ public class MyBathroomProblemSolver implements BathroomProblemSolverInterface
     // returns false if either the bathroom is full or no more people of the current gender will be allowed in the bathroom in the current phase; otherwise, returns true
     boolean okayToEnter(gender type)
     {
+        System.out.println("okayToEnter(" + type + ")");
+        debug();
         return (turn == type
                 && waiting[type.ordinal()] > 0
                 && inside < numToilets
@@ -93,6 +108,8 @@ public class MyBathroomProblemSolver implements BathroomProblemSolverInterface
     //  (c) either the number of people of the current gender who have used the bathroom is greater than or equal to the threshold or there is no person of the current gender waiting to enter the bathroom.
     boolean okayToSwitch(gender type)
     {
+        System.out.println("okayToSwitch(" + type + ")");
+        debug();
         return (turn != type
                 && inside == 0
                 && waiting[type.ordinal()] > 0
